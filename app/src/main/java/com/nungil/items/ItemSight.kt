@@ -49,7 +49,7 @@ class ItemSight(context: Context) : Closeable {
     fun see(frame: Bitmap, x: Float, y: Float, hfovDeg: Float, focusDistanceM: Float?): Sighting? {
         filled = false
         val answer = segmenter.at(frame, x, y) ?: return null
-        val mask = ItemMask.of(answer.values, answer.width, answer.height, x, y)
+        val mask = ItemMasks.cut(answer, x, y)
         if (mask == null) {
             filled = ItemMask.coverAt(answer.values, answer.width, answer.height, x, y) > ItemMask.MAX_COVER
             return null

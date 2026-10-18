@@ -129,4 +129,13 @@ class ItemMaskTest {
         assertEquals(0.16f, ItemMask.coverAt(square(20, 6, 13, inside = 0f, outside = 1f), 20, 20), 1e-6f)
         assertEquals(0f, ItemMask.coverAt(FloatArray(399) { 1f }, 20, 20), 1e-6f)
     }
+
+    @Test fun ofInsideKeepsTheCoverGate() {
+        assertNull(ItemMask.of(BooleanArray(100), 10, 10))                       // nothing: a speck at most
+        assertNull(ItemMask.of(BooleanArray(100) { it < 80 }, 10, 10))           // 80%: the table
+        val mask = ItemMask.of(BooleanArray(100) { it < 30 }, 10, 10)!!
+        assertEquals(0.3f, mask.cover, 1e-6f)
+        assertEquals(10, mask.width)
+        assertTrue(mask.inside[29] && !mask.inside[30])
+    }
 }
