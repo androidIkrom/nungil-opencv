@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit
 class DecisionTrace private constructor(private val dir: File) {
     private val executor = Executors.newSingleThreadExecutor { r -> Thread(r, "nungil-trace").apply { isDaemon = true } }
     private val day = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+    private var pruned = false
 
     fun record(e: TraceEvent) {
         val line = TraceLine.json(e)
@@ -28,6 +29,10 @@ class DecisionTrace private constructor(private val dir: File) {
             executor.execute {
                 try {
                     dir.mkdirs()
+                    if (!pruned) {
+                        pruned = true
+                        prune()
+                    }
                     File(dir, name).appendText(line + "\n")
                 } catch (t: Throwable) {
                     Log.w(TAG, "trace line lost", t)
@@ -47,9 +52,19 @@ class DecisionTrace private constructor(private val dir: File) {
         }
     }
 
+    /** Trace files older than [KEEP_DAYS] are deleted: a blind user's phone is not a log server. */
+    private fun prune() {
+        val cutoff = System.currentTimeMillis() - KEEP_DAYS * 24L * 3600 * 1000
+        dir.listFiles { f -> f.name.endsWith(".jsonl") && f.lastModified() < cutoff }?.forEach { it.delete() }
+    }
+
     companion object {
         private const val TAG = "NungilTrace"
+        const val KEEP_DAYS = 7
         private var shared: DecisionTrace? = null
+
+        /** A trace of its own in [dir] (tests). */
+        fun at(dir: File): DecisionTrace = DecisionTrace(dir)
 
         @Synchronized
         fun shared(context: Context): DecisionTrace =

@@ -27,8 +27,8 @@ android {
         // "Look closer": the look-closer Lambda's Function URL and shared key (cloud/README.md); empty = not set up.
         buildConfigField 'String', 'NUNGIL_CLOUD_URL', "\"${localProps.getProperty('NUNGIL_CLOUD_URL', '')}\""
         buildConfigField 'String', 'NUNGIL_CLOUD_KEY', "\"${localProps.getProperty('NUNGIL_CLOUD_KEY', '')}\""
-        // The phone (arm64) and the emulator (x86_64): OpenCV's AAR carries every ABI, the APK need not.
-        ndk { abiFilters 'arm64-v8a', 'x86_64' }
+        // Phones (arm64, and 32-bit arm as before OpenCV) and the emulator (x86_64); OpenCV's AAR carries every ABI.
+        ndk { abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86_64' }
     }
 
     buildTypes {

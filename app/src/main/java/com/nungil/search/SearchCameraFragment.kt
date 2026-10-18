@@ -256,7 +256,7 @@ class SearchCameraFragment : Fragment(), CameraScreen {
         }
         chosen?.let { services.speaker.sayNow(it.text) }
         // The perception-to-action trace: what was seen, what the guide decided, what the user got.
-        DecisionTrace.shared(requireContext().applicationContext).record(
+        context?.applicationContext?.let { app -> DecisionTrace.shared(app).record(
             TraceEvent(
                 System.currentTimeMillis(), "find",
                 target?.let { "$spokenName at %.2f,%.2f".format(it.centerX, it.centerY) } ?: "$spokenName not seen",
@@ -271,7 +271,7 @@ class SearchCameraFragment : Fragment(), CameraScreen {
                     chosen?.let { "say ${it.text}" },
                 ).joinToString("; ").ifEmpty { "none" },
             ),
-        )
+        ) }
 
         val marks = frame.detections.filter { it.box != target }.map { OverlayView.Mark(it.box, null, OverlayView.Style.DIM) } +
             listOfNotNull(target?.let { OverlayView.Mark(it, spokenName, OverlayView.Style.TARGET) })

@@ -22,3 +22,4 @@ app/src/androidTest/assets/faces/
 # The cloud Lambda's local Python environment and build output
 cloud/.venv/
 cloud/build/
+__pycache__/

@@ -76,6 +76,20 @@ class CvColorParityTest {
         assertTrue("agreement $agreement", agreement >= 0.8f)
     }
 
+    /** A bitmap OpenCV cannot read (ALPHA_8): the sampler must answer like the grid, not throw. */
+    @Test fun fallsBackToGridWhenOpenCvThrows() {
+        assertTrue(Cv.ensure())
+        val odd = Bitmap.createBitmap(64, 48, Bitmap.Config.ALPHA_8)
+        val light = ColorSampler.frameLight(odd)
+        Cv.forceOff = true
+        val grid = ColorSampler.frameLight(odd)
+        assertEquals(grid.isDark, light.isDark)
+        assertEquals(grid.gains.toList(), light.gains.toList())
+        Cv.forceOff = false
+        assertEquals(ColorSampler.colorOf(odd, boxes[0], light), run { Cv.forceOff = true; ColorSampler.colorOf(odd, boxes[0], light) })
+        assertTrue(ColorSampler.explain(odd, boxes[0], light).endsWith("; grid"))
+    }
+
     @Test fun fallsBackToGridWhenOpenCvIsOff() {
         Cv.forceOff = true
         val (_, photo) = photos().first()

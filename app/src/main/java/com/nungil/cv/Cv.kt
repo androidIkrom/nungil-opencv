@@ -20,6 +20,16 @@ object Cv {
 
     private var loaded: Boolean? = null
 
+    @Volatile
+    private var warned = false
+
+    /** An OpenCV call threw: the caller takes its pure-Kotlin path. Logged once per process, so a bad frame is not a log storm. */
+    fun failed(t: Throwable) {
+        if (warned) return
+        warned = true
+        Log.w(TAG, "OpenCV call failed; the pure-Kotlin path answers instead", t)
+    }
+
     /** [Core.VERSION] after a true [ensure], else null. */
     var version: String? = null
         private set

@@ -24,6 +24,14 @@ import org.opencv.imgproc.Imgproc
 object CvColor {
     private val achromatic = setOf(ColorName.BLACK, ColorName.WHITE, ColorName.GRAY)
 
+    /**
+     * Whether OpenCV may read [bitmap]: Utils.bitmapToMat takes ARGB_8888 and RGB_565 only, and on anything else its
+     * native side asserts after locking the pixels, which crashed the process (Scudo double free) in the emulator.
+     * Callers check this first and take the grid path otherwise.
+     */
+    fun canRead(bitmap: Bitmap): Boolean =
+        !bitmap.isRecycled && (bitmap.config == Bitmap.Config.ARGB_8888 || bitmap.config == Bitmap.Config.RGB_565)
+
     fun frameLight(bitmap: Bitmap): ColorSampler.FrameLight {
         val rgba = Mat()
         val rgb = Mat()

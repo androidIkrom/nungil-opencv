@@ -147,7 +147,14 @@ class WalkVision(
                 val bitmap = toBitmap(input)
                 val gridM = input.depthMm?.let { raw ->
                     // OpenCV's median takes depth's spikes first (CvDepth); the recorder keeps the raw frame.
-                    val depth = if (Cv.ensure()) CvDepth.denoise(raw, input.depthWidth, input.depthHeight) else raw
+                    val depth = if (Cv.ensure()) {
+                        try {
+                            CvDepth.denoise(raw, input.depthWidth, input.depthHeight)
+                        } catch (t: Throwable) {
+                            Cv.failed(t)
+                            raw
+                        }
+                    } else raw
                     if (grid.size != input.lut.size) grid = FloatArray(input.lut.size)
                     DepthGrid.fill(depth, input.lut, grid)
                     grid

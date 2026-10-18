@@ -15,6 +15,20 @@ import java.io.File
 class DecisionTraceTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
 
+    @Test fun filesOlderThanAWeekArePruned() {
+        val dir = File(context.filesDir, "trace")
+        dir.mkdirs()
+        val old = File(dir, "2020-01-01.jsonl").apply { writeText("{}\n") }
+        old.setLastModified(System.currentTimeMillis() - 8L * 24 * 3600 * 1000)
+        val recent = File(dir, "2099-01-01.jsonl").apply { writeText("{}\n") }
+        val trace = DecisionTrace.at(dir)
+        trace.record(TraceEvent(System.currentTimeMillis(), "find", "x", "y", "z"))
+        trace.flush()
+        assertTrue("old file pruned", !old.exists())
+        assertTrue("recent file kept", recent.exists())
+        recent.delete()
+    }
+
     @Test fun eventsAreAppendedAsJsonLines() {
         val trace = DecisionTrace.shared(context)
         val dir = File(context.filesDir, "trace")
