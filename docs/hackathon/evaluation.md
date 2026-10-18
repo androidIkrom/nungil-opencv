@@ -33,3 +33,17 @@ the touch point is kept.
 
 The pieces removed were specks and thin bridges on the table, not the item: the cover barely moves while every
 mask becomes one piece.
+
+## Depth (OpenCV median filter before Walk reads floors and walls)
+
+`CvDepthTest`, 2026-10-18, emulator x86_64, synthetic 160 x 90 depth images (no walk recordings were available
+off the phone during the build phase).
+
+| Input | Result after the 3 x 3 median |
+|---|---|
+| Flat floor at 1 500 mm with 5 % random spikes (300-6 000 mm) and 3 % holes | 99 % or more of measured pixels within 20 mm of the floor; every hole stays a hole |
+| A step edge, 1 500 mm left, 2 500 mm right | no value between 1 600 and 2 400 mm: the edge stays sharp |
+| All zeros (ARCore could not measure) | all zeros, no exception |
+
+The filter never invents a measurement: a pixel ARCore left at 0 stays 0. The raw frame still goes to the
+debug recorder, so a replay can compare both.

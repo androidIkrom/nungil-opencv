@@ -1,6 +1,8 @@
 package com.nungil.walk
 
 import android.content.Context
+import com.nungil.cv.Cv
+import com.nungil.cv.CvDepth
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Matrix
@@ -141,7 +143,9 @@ class WalkVision(
         executor.execute {
             try {
                 val bitmap = toBitmap(input)
-                val gridM = input.depthMm?.let { depth ->
+                val gridM = input.depthMm?.let { raw ->
+                    // OpenCV's median takes depth's spikes first (CvDepth); the recorder keeps the raw frame.
+                    val depth = if (Cv.ensure()) CvDepth.denoise(raw, input.depthWidth, input.depthHeight) else raw
                     if (grid.size != input.lut.size) grid = FloatArray(input.lut.size)
                     DepthGrid.fill(depth, input.lut, grid)
                     grid
