@@ -139,3 +139,18 @@ voice or by the one big button; nothing is sent to the cloud unless the user ask
 - Nungil assists; it is not a mobility aid replacement. Walk mode never says "safe" and is tested with a sighted
   tester; a blind user's trial is still to be done.
 - The entry's test photos are freely licensed (Wikimedia Commons); the face test photos are git-ignored.
+
+## Video soak (the OpenCV paths frame after frame)
+
+`CvSoakTest`, 2026-10-18, emulator x86_64: a 1 050-frame 640 x 480 video made from the desk photos
+(`tools/desk-photos/make_video.sh`, slow zoom over each photo). Every frame runs the colour path (frame light and
+three boxes), every tenth frame the segmenter and the mask clean-up.
+
+| | Early (frames 10-110) | Late (last 100) |
+|---|---|---|
+| Colour path per frame | 4.6 ms | 3.8 ms |
+| Native heap after GC | 116 MB (at frame 100) | 65 MB (at the end) |
+| Java heap after GC | 15 MB | 13 MB |
+
+3 150 of 3 150 boxes were named, 103 of 105 masks were cut. No growth in either heap and no drift in the frame
+time: the Mats are released, not leaked.
