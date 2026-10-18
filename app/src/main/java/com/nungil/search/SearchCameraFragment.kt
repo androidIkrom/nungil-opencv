@@ -23,6 +23,8 @@ import com.nungil.contract.app.SwitchableCamera
 import com.nungil.contract.app.services
 import com.nungil.core.scan.ScanPhrases
 import com.nungil.core.search.FindVoice
+import com.nungil.core.trace.TraceEvent
+import com.nungil.trace.DecisionTrace
 import com.nungil.core.search.SearchGuide
 import com.nungil.core.search.SearchPhrases
 import com.nungil.core.search.SearchTracker
@@ -253,6 +255,23 @@ class SearchCameraFragment : Fragment(), CameraScreen {
             voice.next(now)
         }
         chosen?.let { services.speaker.sayNow(it.text) }
+        // The perception-to-action trace: what was seen, what the guide decided, what the user got.
+        DecisionTrace.shared(requireContext().applicationContext).record(
+            TraceEvent(
+                System.currentTimeMillis(), "find",
+                target?.let { "$spokenName at %.2f,%.2f".format(it.centerX, it.centerY) } ?: "$spokenName not seen",
+                when {
+                    update.say is SearchTracker.Say.Lost -> "lost"
+                    zone != null -> "zone $zone, pulse $pulse ms"
+                    else -> "no target"
+                },
+                listOfNotNull(
+                    if (pulse > 0L) "beep $pulse ms" else null,
+                    if (update.enteredCenter) "buzz" else null,
+                    chosen?.let { "say ${it.text}" },
+                ).joinToString("; ").ifEmpty { "none" },
+            ),
+        )
 
         val marks = frame.detections.filter { it.box != target }.map { OverlayView.Mark(it.box, null, OverlayView.Style.DIM) } +
             listOfNotNull(target?.let { OverlayView.Mark(it, spokenName, OverlayView.Style.TARGET) })

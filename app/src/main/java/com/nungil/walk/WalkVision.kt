@@ -1,8 +1,10 @@
 package com.nungil.walk
 
 import android.content.Context
+import com.nungil.core.trace.TraceEvent
 import com.nungil.cv.Cv
 import com.nungil.cv.CvDepth
+import com.nungil.trace.DecisionTrace
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Matrix
@@ -225,7 +227,16 @@ class WalkVision(
     }
 
     private fun deliver(report: WalkReport) {
-        if (!closed) main.post { if (!closed) onReport(report) }
+        if (closed) return
+        DecisionTrace.shared(context).record(
+            TraceEvent(
+                System.currentTimeMillis(), "walk",
+                "depth " + (if (report.depthWorking) "working" else "not measuring") + (report.beepM?.let { ", nearest %.1f m".format(it) } ?: ""),
+                report.alerts.joinToString("; ") { it.key }.ifEmpty { "nothing new" },
+                report.alerts.joinToString("; ") { "say ${it.text}" }.ifEmpty { "none" },
+            ),
+        )
+        main.post { if (!closed) onReport(report) }
     }
 
     private fun analyse(
