@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="520" viewBox="0 0 1240 520" font-family="system-ui, Segoe UI, Helvetica, Arial, sans-serif" font-size="15">
+  <title>Nungil architecture: input, OpenCV 5 layer, perception, agent, AWS, action</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a4a4a"/>
+    </marker>
+    <style>
+      .box { fill: #f4f6fa; stroke: #2b4c7e; stroke-width: 2; rx: 10; }
+      .cv { fill: #e8f3ec; stroke: #1f7a44; }
+      .aws { fill: #fff3e0; stroke: #c2641a; }
+      .act { fill: #f3e9f7; stroke: #6b3fa0; }
+      .title { font-weight: 700; font-size: 17px; fill: #111; }
+      .item { fill: #222; }
+      .note { fill: #444; font-size: 13px; }
+      .edge { stroke: #4a4a4a; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .label { fill: #333; font-size: 13px; }
+      .phone { fill: none; stroke: #9aa5b5; stroke-width: 1.5; stroke-dasharray: 6 5; rx: 14; }
+    </style>
+  </defs>
+  <rect width="1240" height="520" fill="#ffffff"/>
+
+  <!-- the phone: everything but AWS runs here, offline -->
+  <rect class="phone" x="20" y="60" width="900" height="440"/>
+  <text x="34" y="86" class="note">On the phone, with no internet: Android, Kotlin</text>
+
+  <!-- Input -->
+  <rect class="box" x="40" y="110" width="180" height="300"/>
+  <text x="130" y="140" text-anchor="middle" class="title">Input</text>
+  <text x="56" y="175" class="item">Camera frames (CameraX)</text>
+  <text x="56" y="200" class="item">640 x 480 analysis</text>
+  <text x="56" y="240" class="item">ARCore depth image</text>
+  <text x="56" y="265" class="item">(Walk mode)</text>
+  <text x="56" y="305" class="item">Microphone, wake word</text>
+  <text x="56" y="330" class="item">"Eye" / "눈길아"</text>
+  <text x="56" y="370" class="item">Compass heading</text>
+
+  <!-- OpenCV layer -->
+  <rect class="box cv" x="260" y="110" width="200" height="300"/>
+  <text x="360" y="140" text-anchor="middle" class="title">OpenCV 5 layer</text>
+  <text x="276" y="175" class="item">Colour: cvtColor, mean,</text>
+  <text x="276" y="195" class="item">multiply, inRange over</text>
+  <text x="276" y="215" class="item">the whole object region</text>
+  <text x="276" y="250" class="item">Item mask: morphologyEx,</text>
+  <text x="276" y="270" class="item">connectedComponents,</text>
+  <text x="276" y="290" class="item">keep the touched piece</text>
+  <text x="276" y="325" class="item">Depth: medianBlur 3x3</text>
+  <text x="276" y="345" class="item">on the 16-bit depth image</text>
+  <text x="276" y="385" class="note">Pure-Kotlin fallback if the</text>
+  <text x="276" y="402" class="note">native library is missing</text>
+
+  <!-- Perception -->
+  <rect class="box" x="500" y="110" width="190" height="300"/>
+  <text x="595" y="140" text-anchor="middle" class="title">Perception</text>
+  <text x="516" y="175" class="item">Detectors (LiteRT, GPU):</text>
+  <text x="516" y="195" class="item">EfficientDet, YOLO26</text>
+  <text x="516" y="230" class="item">Segmenter: magic_touch</text>
+  <text x="516" y="265" class="item">Faces: ML Kit + FaceNet</text>
+  <text x="516" y="300" class="item">Objects: MobileNetV3</text>
+  <text x="516" y="335" class="item">OCR, QR: ML Kit</text>
+  <text x="516" y="370" class="item">Floor and wall geometry</text>
+
+  <!-- Agent -->
+  <rect class="box" x="730" y="110" width="170" height="300"/>
+  <text x="815" y="140" text-anchor="middle" class="title">Agent</text>
+  <text x="746" y="175" class="item">Scan: merge, count,</text>
+  <text x="746" y="195" class="item">direction, colour</text>
+  <text x="746" y="230" class="item">Find: beep rate from</text>
+  <text x="746" y="250" class="item">where the target is</text>
+  <text x="746" y="285" class="item">Walk: confirm over</text>
+  <text x="746" y="305" class="item">frames and steps</text>
+  <text x="746" y="340" class="item">Decision trace</text>
+  <text x="746" y="360" class="item">(JSON lines)</text>
+  <text x="746" y="395" class="note">Voice commands in</text>
+
+  <!-- AWS -->
+  <rect class="box aws" x="960" y="60" width="250" height="200"/>
+  <text x="1085" y="90" text-anchor="middle" class="title">AWS (only on "look closer")</text>
+  <text x="976" y="125" class="item">Lambda, Graviton arm64,</text>
+  <text x="976" y="145" class="item">Python 3.12, Function URL</text>
+  <text x="976" y="175" class="item">OpenCV 5: crop, resize,</text>
+  <text x="976" y="195" class="item">CLAHE, QRCodeDetector</text>
+  <text x="976" y="225" class="item">Amazon Bedrock, Nova Lite:</text>
+  <text x="976" y="245" class="item">two sentences, text verbatim</text>
+
+  <!-- Action -->
+  <rect class="box act" x="960" y="300" width="250" height="200"/>
+  <text x="1085" y="330" text-anchor="middle" class="title">Action</text>
+  <text x="976" y="365" class="item">Speech (TTS), English and</text>
+  <text x="976" y="385" class="item">Korean, caption bar</text>
+  <text x="976" y="415" class="item">Beeps: faster as the target</text>
+  <text x="976" y="435" class="item">nears the centre</text>
+  <text x="976" y="465" class="item">Vibration when centred</text>
+  <text x="976" y="485" class="item">or something is very close</text>
+
+  <!-- edges -->
+  <path class="edge" d="M 220 260 L 258 260"/>
+  <path class="edge" d="M 460 260 L 498 260"/>
+  <path class="edge" d="M 690 260 L 728 260"/>
+  <path class="edge" d="M 900 330 L 958 360"/>
+  <text x="905" y="325" class="label">every frame</text>
+  <path class="edge" d="M 900 200 C 930 200, 930 160, 958 160"/>
+  <text x="896" y="185" class="label" text-anchor="end">one frame,</text>
+  <text x="896" y="202" class="label" text-anchor="end">by voice</text>
+  <path class="edge" d="M 1085 262 L 1085 298"/>
+  <text x="1095" y="285" class="label">spoken answer</text>
+  <text x="620" y="470" text-anchor="middle" class="note">Judges' web page: the same Lambda serves GET / (upload a photo, ask, read the answer).</text>
+</svg>

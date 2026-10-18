@@ -32,6 +32,7 @@ word plus a command in one sentence also works ("Eye, saved").
 |---|---|---|
 | look around / full scan | 주변 둘러보기 | full 360° scan |
 | live scan | 실시간 안내 | announce things as they appear |
+| look closer / more detail | 자세히 봐 | send this frame to the cloud for a fuller description (online only) |
 | find my bag | 가방 찾아줘 | search with beeps |
 | saved | 저장한 것 | saved people, cars and objects |
 | add person Ali | 사람 추가 민준 | enrol a face |
@@ -44,6 +45,17 @@ word plus a command in one sentence also works ("Eye, saved").
 | Korean / English | 한국어 / 영어 | switch language |
 | stop listening | 듣기 중지 | microphone off (tap the mic button to turn it back on) |
 
+## OpenCV 5 and AWS (OpenCV AI Competition 2026)
+
+Three steps of the on-device pipeline run in **OpenCV 5.0.0.1** (`com.nungil.cv`, each with the old pure-Kotlin
+path as fallback): the colour of detected objects over the whole region (`cvtColor`, `mean`, `multiply`,
+`inRange`), the clean-up of a saved object's outline (`morphologyEx`, `connectedComponents`), and a median filter
+on ARCore's depth before Walk reads floors and walls. One voice command, **"Eye, look closer"** (**"눈길아 자세히
+봐"**), sends the last frame to a Lambda function on **AWS Graviton** (`cloud/`): OpenCV 5 crops, sizes, lifts and
+reads any QR code, Amazon Bedrock answers in two sentences in the user's language, and the phone speaks it. Offline
+it says so and keeps working. The same Lambda serves a web page for the judges. Report, diagram and measurements:
+[`docs/hackathon/`](docs/hackathon/report.md).
+
 ## Build and run
 
 Requirements: Android Studio (or JDK 17+), Android SDK 35, a phone with Android 7.0+ (API 24),
@@ -51,18 +63,45 @@ a gyroscope and a compass. Walk mode needs a phone that supports ARCore depth; w
 falls back to detections only.
 
 ```powershell
-git clone https://github.com/androidIkrom/hackathon-ml-scanner.git
-cd hackathon-ml-scanner
+git clone https://github.com/androidIkrom/nungil-opencv.git
+cd nungil-opencv
 "sdk.dir=C\:\\Users\\<you>\\AppData\\Local\\Android\\Sdk" | Out-File -Encoding ascii local.properties
-.\gradlew.bat testDebugUnitTest      # 592 unit tests
-.\gradlew.bat installDebug           # downloads the models (~100 MB) into app/src/main/assets on the first build
+.\gradlew.bat testDebugUnitTest -PskipModels   # 1 055 unit tests, no model download
+.\gradlew.bat installDebug                      # downloads the models (~100 MB) into app/src/main/assets on the first build
 ```
+
+Pinned: OpenCV 5.0.0.1, LiteRT 1.4.2, MediaPipe tasks-vision 1.0.0, ML Kit face 16.1.7 / text 16.0.1 / barcode
+17.3.0, ARCore 1.49.0, CameraX 1.4.2, Kotlin 2.1.0 (`app/build.gradle`); cloud: Python 3.12,
+`opencv-python-headless==5.0.0.93`, `numpy==2.5.4` (`cloud/requirements.txt`).
+
+### Tests
+
+Unit tests run on the JVM (`testDebugUnitTest`). The OpenCV steps, the decision trace and "look closer" are
+tested on a device or the emulator over real photos in `app/src/androidTest/assets`:
+
+```powershell
+.\gradlew.bat :app:assembleDebug :app:assembleDebugAndroidTest -PskipModels
+adb install -r app\build\outputs\apk\debug\app-debug.apk
+adb install -r app\build\outputs\apk\androidTest\debug\app-debug-androidTest.apk
+adb shell am instrument -w -e class com.nungil.cv.CvColorParityTest com.nungil.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+Also `com.nungil.cv.CvMaskTest`, `com.nungil.cv.CvDepthTest`, `com.nungil.trace.DecisionTraceTest`,
+`com.nungil.scan.LookCloserTest`. Cloud tests: `cloud/README.md`.
 
 Optional, for real walking routes: add a free [openrouteservice](https://openrouteservice.org) key to
 `local.properties` (it is git-ignored):
 
 ```properties
 ORS_API_KEY=your-key
+```
+
+Optional, for "look closer": the deployed Lambda's Function URL and shared key (`cloud/README.md`), also in
+`local.properties`. Without them the command says "Cloud look is not set up" and everything else works offline.
+
+```properties
+NUNGIL_CLOUD_URL=https://<id>.lambda-url.us-east-1.on.aws
+NUNGIL_CLOUD_KEY=<key>
 ```
 
 Phone setup for the best experience:
@@ -83,9 +122,10 @@ speech ◄─ TtsSpeaker (queue, barge-in, captions) · haptics · beeps
   tests: geometry, clustering, colour, summaries, search, face and item matching, voice parsing, walk
   depth and stairs, and the route navigator.
 - `contract/`: the frozen interfaces the three parts talk through.
-- Stack: Kotlin 2.1, AGP 8.11, Views + Navigation, Material 3, CameraX 1.4, MediaPipe tasks-vision, ML Kit,
-  TensorFlow Lite, ARCore 1.49, Room.
-- Only one feature uses the network: the walk-mode route request, which falls back to the offline beacon.
+- Stack: Kotlin 2.1, AGP 8.11, Views + Navigation, Material 3, CameraX 1.4, OpenCV 5.0.0.1, MediaPipe tasks-vision,
+  ML Kit, LiteRT 1.4, ARCore 1.49, Room.
+- Two features use the network, both optional: the walk-mode route request (falls back to the offline beacon) and
+  "look closer" (says "No internet" and goes on).
 
 ## Team and how we work
 
