@@ -17,6 +17,9 @@ sealed interface CameraAction {
     /** Name the thing in the middle of the last frame. */
     data object DescribeCentre : CameraAction
 
+    /** Send the last frame to the cloud for a fuller description, or say why not (offline, not set up). */
+    data object LookCloser : CameraAction
+
     /** Name the face nearest the middle of the last frame. */
     data object NameFace : CameraAction
 
@@ -48,6 +51,7 @@ object CameraCommandPolicy {
             else -> CameraAction.Switch(command.to)
         }
         VoiceCommand.WhatIsThis -> CameraAction.DescribeCentre
+        VoiceCommand.LookCloser -> CameraAction.LookCloser
         VoiceCommand.WhoIsThis -> CameraAction.NameFace
         VoiceCommand.Stop -> if (working) CameraAction.Pause else CameraAction.Leave
         VoiceCommand.Start -> CameraAction.Resume

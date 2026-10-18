@@ -83,6 +83,13 @@ class VoiceCommandParserTest {
     // ---- questions ------------------------------------------------------------------------------
     @Test fun whoIsThis() = assertEquals(VoiceCommand.WhoIsThis, p("Who is this?"))
     @Test fun whatIsThis() = assertEquals(VoiceCommand.WhatIsThis, p("What's this"))
+    @Test fun lookCloser() = assertEquals(VoiceCommand.LookCloser, p("look closer"))
+    @Test fun lookCloserMoreDetail() = assertEquals(VoiceCommand.LookCloser, p("more detail please"))
+    @Test fun lookCloserDescribeInDetail() = assertEquals(VoiceCommand.LookCloser, p("describe in detail"))
+    @Test fun lookCloserAskTheCloud() = assertEquals(VoiceCommand.LookCloser, p("ask the cloud"))
+    @Test fun describeAloneIsStillWhatIsThis() = assertEquals(VoiceCommand.WhatIsThis, p("describe"))
+    @Test fun koLookCloser() = assertEquals(VoiceCommand.LookCloser, p("자세히 봐"))
+    @Test fun koLookCloserExplain() = assertEquals(VoiceCommand.LookCloser, p("더 자세히 설명해 줘"))
     @Test fun whatIsThisScreen() = assertEquals(VoiceCommand.Help(null), p("what is this screen"))
     @Test fun whereAmI() = assertEquals(VoiceCommand.Help(null), p("where am I"))
     @Test fun helpTopic() = assertEquals(VoiceCommand.Help("search"), p("What is search?"))

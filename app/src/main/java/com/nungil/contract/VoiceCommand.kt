@@ -16,6 +16,8 @@ sealed interface VoiceCommand {
     data object Delete : VoiceCommand
     data object WhoIsThis : VoiceCommand
     data object WhatIsThis : VoiceCommand
+    /** Send the last frame to the cloud for a fuller description ("look closer", "자세히 봐"). */
+    data object LookCloser : VoiceCommand
     /** [topic] null = help for the current screen. */
     data class Help(val topic: String?) : VoiceCommand
     data class Learner(val on: Boolean) : VoiceCommand

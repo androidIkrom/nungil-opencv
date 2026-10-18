@@ -46,7 +46,7 @@ object CommandRouter {
         VoiceCommand.StopListening -> Route.StopListening
         is VoiceCommand.SetLanguage -> Route.SwitchLanguage(command.lang)
         VoiceCommand.ReadText -> Route.Open(Dest.Reader)
-        VoiceCommand.WhatIsThis, VoiceCommand.WhoIsThis ->
+        VoiceCommand.WhatIsThis, VoiceCommand.WhoIsThis, VoiceCommand.LookCloser ->
             Route.OpenAndSay(Dest.Scan(ScanMode.LIVE), Phrase.OPENING_LIVE_SCAN)
         VoiceCommand.Stop -> Route.StopSpeaking
         VoiceCommand.Start, is VoiceCommand.SwitchCamera, VoiceCommand.Delete -> Route.Say(Phrase.NOT_HERE)

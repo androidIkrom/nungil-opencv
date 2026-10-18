@@ -603,6 +603,7 @@ class MainActivity : AppCompatActivity(), AppServices, AppNavigator {
             CameraAction.BackCameraOnly -> tts.sayNow(ScanPhrases.backCameraOnly(lang))
             CameraAction.NotReady -> Unit
             CameraAction.DescribeCentre -> frameAnswers(screen)?.what(screen.lastFrame(), lang)
+            CameraAction.LookCloser -> frameAnswers(screen)?.closer(screen.lastFrame(), lang)
             CameraAction.NameFace -> frameAnswers(screen)?.who(screen.lastFrame(), lang)
             CameraAction.Pause -> screen.pause()
             CameraAction.Leave -> {
@@ -621,7 +622,7 @@ class MainActivity : AppCompatActivity(), AppServices, AppNavigator {
         val owner = (screen as? Fragment)?.takeIf { it.view != null }?.viewLifecycleOwner ?: return null
         if (answersOwner !== owner) {
             answers?.close()
-            answers = FrameAnswers(this, owner) { tts.sayNow(it) }
+            answers = FrameAnswers(this, owner, { tts.sayNow(it) })
             answersOwner = owner
             owner.lifecycle.addObserver(object : DefaultLifecycleObserver {
                 override fun onDestroy(owner: LifecycleOwner) {
