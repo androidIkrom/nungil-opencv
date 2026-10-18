@@ -5,14 +5,20 @@ import com.nungil.contract.Box
 import com.nungil.core.scan.ColorName
 import com.nungil.core.scan.ColorVote
 import com.nungil.core.scan.WhiteBalance
+import com.nungil.cv.Cv
+import com.nungil.cv.CvColor
 import java.util.Locale
 
-/** Reads the pixels ColorVote needs from an upright frame bitmap. Call on a worker thread. */
+/**
+ * The colour work on an upright frame bitmap: through OpenCV over every pixel of a region (CvColor) when its
+ * library is there, else ColorVote over a grid of sampled pixels. Call on a worker thread.
+ */
 object ColorSampler {
     /** Light of the whole frame: white-balance gains and whether it is too dark for colours. */
     class FrameLight(val gains: FloatArray, val isDark: Boolean)
 
     fun frameLight(bitmap: Bitmap): FrameLight {
+        if (Cv.ensure()) return CvColor.frameLight(bitmap)
         val pixels = read(bitmap, Box(0f, 0f, 1f, 1f), ColorVote.FRAME_GRID)
         return FrameLight(WhiteBalance.gains(pixels), ColorVote.isDark(pixels))
     }
@@ -20,20 +26,26 @@ object ColorSampler {
     /** Colour of the object in [box], or null when the frame is dark or nothing is named. */
     fun colorOf(bitmap: Bitmap, box: Box, light: FrameLight): ColorName? {
         if (light.isDark) return null
-        val pixels = read(bitmap, ColorVote.sampleRegion(box), ColorVote.SAMPLE_GRID)
-        return ColorVote.vote(pixels, light.gains, light.isDark)
+        val region = ColorVote.sampleRegion(box)
+        if (Cv.ensure()) return ColorVote.decide(CvColor.counts(bitmap, region, light.gains), light.isDark)
+        return ColorVote.vote(read(bitmap, region, ColorVote.SAMPLE_GRID), light.gains, light.isDark)
     }
 
     /**
      * For the log: the votes in [box] before and after white balance, and the frame's gains (Task 2 of the
-     * live-quality plan: why a white bottle was "blue").
+     * live-quality plan: why a white bottle was "blue"), and which path counted ("cv" or "grid").
      */
     fun explain(bitmap: Bitmap, box: Box, light: FrameLight): String {
-        val pixels = read(bitmap, ColorVote.sampleRegion(box), ColorVote.SAMPLE_GRID)
+        val region = ColorVote.sampleRegion(box)
         val g = light.gains
-        return "raw " + ColorVote.shares(ColorVote.counts(pixels, NEUTRAL)) +
-            "; balanced " + ColorVote.shares(ColorVote.counts(pixels, g)) +
-            String.format(Locale.US, "; gains %.2f %.2f %.2f", g[0], g[1], g[2])
+        val cv = Cv.ensure()
+        val counts: (FloatArray) -> IntArray =
+            if (cv) { gains -> CvColor.counts(bitmap, region, gains) }
+            else { gains -> ColorVote.counts(read(bitmap, region, ColorVote.SAMPLE_GRID), gains) }
+        return "raw " + ColorVote.shares(counts(NEUTRAL)) +
+            "; balanced " + ColorVote.shares(counts(g)) +
+            String.format(Locale.US, "; gains %.2f %.2f %.2f", g[0], g[1], g[2]) +
+            if (cv) "; cv" else "; grid"
     }
 
     private val NEUTRAL = floatArrayOf(1f, 1f, 1f)
