@@ -21,7 +21,12 @@ object WhiteBalance {
             b += p and 0xFF
         }
         val n = pixels.size.toFloat()
-        val means = floatArrayOf(r / n, g / n, b / n)
+        return gainsOf(r / n, g / n, b / n)
+    }
+
+    /** Gains for R, G and B from the frame's channel means (OpenCV's Core.mean gives these directly). */
+    fun gainsOf(meanR: Float, meanG: Float, meanB: Float): FloatArray {
+        val means = floatArrayOf(meanR, meanG, meanB)
         val gray = (means[0] + means[1] + means[2]) / 3f
         return FloatArray(3) { i ->
             if (means[i] <= 0f) 1f else (gray / means[i]).coerceIn(MIN_GAIN, MAX_GAIN)

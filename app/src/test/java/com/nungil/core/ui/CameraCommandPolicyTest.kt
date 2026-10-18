@@ -22,6 +22,7 @@ class CameraCommandPolicyTest {
     @Test fun whatAndWhoIsThis() {
         for (canSwitch in listOf(true, false)) for (working in listOf(true, false)) {
             assertEquals(CameraAction.DescribeCentre, decide(VoiceCommand.WhatIsThis, canSwitch, working))
+            assertEquals(CameraAction.LookCloser, decide(VoiceCommand.LookCloser, canSwitch, working))
             assertEquals(CameraAction.NameFace, decide(VoiceCommand.WhoIsThis, canSwitch, working))
         }
     }

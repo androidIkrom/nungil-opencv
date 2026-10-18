@@ -37,6 +37,9 @@ class CommandRouterTest {
         assertEquals(expected, CommandRouter.route(VoiceCommand.WhoIsThis))
     }
 
+    @Test fun lookCloserOpensLiveScanLikeWhatIsThis() =
+        assertEquals(Route.OpenAndSay(Dest.Scan(ScanMode.LIVE), Phrase.OPENING_LIVE_SCAN), CommandRouter.route(VoiceCommand.LookCloser))
+
     @Test fun unhandledScreenActionsSayNotHere() {
         for (c in listOf(VoiceCommand.Start, VoiceCommand.SwitchCamera(), VoiceCommand.Delete)) {
             assertEquals(Route.Say(Phrase.NOT_HERE), CommandRouter.route(c))

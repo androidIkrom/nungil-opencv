@@ -130,7 +130,7 @@ class ItemMask private constructor(val width: Int, val height: Int, val inside: 
         const val MAX_COVER = 0.7f
 
         const val SAMPLE_GRID = 24
-        private const val INSIDE = 0.5f
+        internal const val INSIDE = 0.5f
         private const val EDGE_PX = 2
         private const val MIDDLE_PX = 2
 
@@ -153,6 +153,14 @@ class ItemMask private constructor(val width: Int, val height: Int, val inside: 
             return ItemMask(width, height, inside, cover)
         }
 
+        /** A mask from pixels already judged ([inside], row by row, [width] x [height]), under the same cover gate. */
+        fun of(inside: BooleanArray, width: Int, height: Int): ItemMask? {
+            if (width <= 0 || height <= 0 || inside.size != width * height) return null
+            val cover = inside.count { it }.toFloat() / inside.size
+            if (cover < MIN_COVER || cover > MAX_COVER) return null
+            return ItemMask(width, height, inside, cover)
+        }
+
         /**
          * How much of a [width] x [height] answer the thing at ([x], [y]) covers (0..1): why [of] gives nothing
          * for a thing that fills the view. 0 when [confidence] is not [width] x [height].
@@ -164,7 +172,7 @@ class ItemMask private constructor(val width: Int, val height: Int, val inside: 
         }
 
         /** Whether the few pixels around ([px], [py]), which are the item, have the high values. */
-        private fun pointIsHigh(confidence: FloatArray, width: Int, height: Int, px: Int, py: Int): Boolean {
+        internal fun pointIsHigh(confidence: FloatArray, width: Int, height: Int, px: Int, py: Int): Boolean {
             var sum = 0f
             var n = 0
             for (y in (py - MIDDLE_PX).coerceAtLeast(0)..(py + MIDDLE_PX).coerceAtMost(height - 1)) {

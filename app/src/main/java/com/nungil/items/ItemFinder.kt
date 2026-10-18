@@ -65,7 +65,7 @@ class ItemFinder(private val context: Context, reach: Reach) : SavedFinder {
     /** The thing in the middle of [square], cut out, or null without a segmenter or when it is the table, the wall or a speck. */
     private fun cut(bitmap: Bitmap, square: Box): CutThing? {
         val answer = segmenter()?.at(bitmap, square.centerX, square.centerY) ?: return null
-        val mask = ItemMask.of(answer.values, answer.width, answer.height, square.centerX, square.centerY) ?: return null
+        val mask = ItemMasks.cut(answer, square.centerX, square.centerY) ?: return null
         val own = ItemWindows.square(mask.box, bitmap.width, bitmap.height)
         return CutThing(mask.box, own, embedder.embedAlone(bitmap, own, mask)?.let { recognizer.identify(it, 0f) })
     }

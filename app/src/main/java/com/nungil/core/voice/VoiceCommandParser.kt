@@ -164,6 +164,11 @@ object VoiceCommandParser {
             (w.first() in setOf("who", "whos") && s.has("there", "here", "front", "see", "looking"))
         if (who) return VoiceCommand.WhoIsThis
 
+        // Before "what is this": "describe in detail" and "자세히 설명" would fall to it.
+        val closer = s.seq("look", "closer") || s.seq("closer", "look") || s.has("detail", "details", "detailed") ||
+            s.seq("ask", "the", "cloud") || s.ko("자세히", "더자세히", "클라우드")
+        if (closer) return VoiceCommand.LookCloser
+
         val what = s.seq("what", "is", "this") || s.seq("what", "is", "that") || s.seq("whats", "this") ||
             s.seq("whats", "that") || s.seq("what", "am", "i", "looking", "at") ||
             s.seq("what", "is", "it") || s.seq("whats", "it") || s.seq("tell", "me", "what") ||

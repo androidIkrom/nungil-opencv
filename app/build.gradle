@@ -24,6 +24,11 @@ android {
         versionName '1.0'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         buildConfigField 'String', 'ORS_API_KEY', "\"${localProps.getProperty('ORS_API_KEY', '')}\""
+        // "Look closer": the look-closer Lambda's Function URL and shared key (cloud/README.md); empty = not set up.
+        buildConfigField 'String', 'NUNGIL_CLOUD_URL', "\"${localProps.getProperty('NUNGIL_CLOUD_URL', '')}\""
+        buildConfigField 'String', 'NUNGIL_CLOUD_KEY', "\"${localProps.getProperty('NUNGIL_CLOUD_KEY', '')}\""
+        // Phones (arm64, and 32-bit arm as before OpenCV) and the emulator (x86_64); OpenCV's AAR carries every ABI.
+        ndk { abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86_64' }
     }
 
     buildTypes {
@@ -106,6 +111,8 @@ dependencies {
     implementation 'androidx.camera:camera-lifecycle:1.4.2'
     implementation 'androidx.camera:camera-view:1.4.2'
 
+    // OpenCV 5 (Maven Central AAR): scan colour, item mask clean-up, Walk depth filter (com.nungil.cv).
+    implementation 'org.opencv:opencv:5.0.0.1'
     implementation 'com.google.mediapipe:tasks-vision:1.0.0'
     implementation 'com.google.mlkit:face-detection:16.1.7'
     // LiteRT (TensorFlow Lite's new name), same org.tensorflow.lite API. TFLite 2.17 left out the FP16 hint in the
