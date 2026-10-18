@@ -34,6 +34,17 @@ class ColorVoteTest {
 
     @Test fun emptyGivesNull() = assertNull(ColorVote.vote(IntArray(0), neutral, frameIsDark = false))
 
+    @Test fun decideIsTheRuleInsideVote() {
+        for (px in listOf(pixels(blue to 30, gray to 70), pixels(blue to 29, gray to 71), pixels(blue to 100), pixels(gray to 5))) {
+            assertEquals(ColorVote.vote(px, neutral, frameIsDark = false), ColorVote.decide(ColorVote.counts(px, neutral), frameIsDark = false))
+        }
+    }
+
+    @Test fun decideGivesNullForDarkOrEmpty() {
+        assertNull(ColorVote.decide(ColorVote.counts(pixels(blue to 10), neutral), frameIsDark = true))
+        assertNull(ColorVote.decide(IntArray(ColorName.entries.size), frameIsDark = false))
+    }
+
     @Test fun theVotesAreShownForTheLog() {
         val px = pixels(rgb(200, 200, 205) to 6, rgb(20, 20, 20) to 2)
         assertEquals("white 75%, black 25%", ColorVote.shares(ColorVote.counts(px, neutral)))

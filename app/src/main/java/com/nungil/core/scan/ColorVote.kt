@@ -55,7 +55,16 @@ object ColorVote {
     /** Majority colour of [pixels] after white balance with [gains]; null in a dark frame. */
     fun vote(pixels: IntArray, gains: FloatArray, frameIsDark: Boolean): ColorName? {
         if (frameIsDark || pixels.isEmpty()) return null
-        val counts = counts(pixels, gains)
+        return decide(counts(pixels, gains), frameIsDark)
+    }
+
+    /**
+     * The name [counts] (by ColorName.ordinal, from [counts] or from OpenCV's bands) give: a colourful name wins
+     * once colourful pixels are at least [MIN_CHROMATIC_SHARE] of the named ones, else the biggest count. Null in
+     * a dark frame or when nothing is named.
+     */
+    fun decide(counts: IntArray, frameIsDark: Boolean): ColorName? {
+        if (frameIsDark) return null
         val named = counts.sum()
         if (named == 0) return null
         val chromatic = ColorName.entries.filter { it.isChromatic }
