@@ -1,5 +1,6 @@
 package com.nungil.contract.app
 
+import com.nungil.contract.Box
 import com.nungil.contract.Facing
 
 /**
@@ -9,6 +10,12 @@ import com.nungil.contract.Facing
 interface CameraScreen {
     /** The last analysed frame, for "what is this" / "who is this"; null before the first. Any thread. */
     fun lastFrame(): VisionFrame?
+
+    /**
+     * The box of the thing the screen is following in its last frames (Find's target), so "look closer" sends
+     * that part only; null when there is none, or on a screen that follows nothing. Any thread.
+     */
+    fun lastTarget(): Box? = null
 
     /** The camera to switch; null when it is not open (yet), or on a screen that has the back camera only. */
     val switchable: SwitchableCamera?

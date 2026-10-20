@@ -603,7 +603,7 @@ class MainActivity : AppCompatActivity(), AppServices, AppNavigator {
             CameraAction.BackCameraOnly -> tts.sayNow(ScanPhrases.backCameraOnly(lang))
             CameraAction.NotReady -> Unit
             CameraAction.DescribeCentre -> frameAnswers(screen)?.what(screen.lastFrame(), lang)
-            CameraAction.LookCloser -> frameAnswers(screen)?.closer(screen.lastFrame(), lang)
+            CameraAction.LookCloser -> frameAnswers(screen)?.closer(screen.lastFrame(), lang, screen.lastTarget())
             CameraAction.NameFace -> frameAnswers(screen)?.who(screen.lastFrame(), lang)
             CameraAction.Pause -> screen.pause()
             CameraAction.Leave -> {

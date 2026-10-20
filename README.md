@@ -51,7 +51,7 @@ Three steps of the on-device pipeline run in **OpenCV 5.0.0.1** (`com.nungil.cv`
 path as fallback): the colour of detected objects over the whole region (`cvtColor`, `mean`, `multiply`,
 `inRange`), the clean-up of a saved object's outline (`morphologyEx`, `connectedComponents`), and a median filter
 on ARCore's depth before Walk reads floors and walls. One voice command, **"Eye, look closer"** (**"눈길아 자세히
-봐"**), sends the last frame to a Lambda function on **AWS Graviton** (`cloud/`): OpenCV 5 crops, sizes, lifts and
+봐"**), sends the last frame (in Find, the target box only) to a Lambda function on **AWS Graviton** (`cloud/`): OpenCV 5 crops, sizes, lifts and
 reads any QR code, Amazon Bedrock answers in two sentences in the user's language, and the phone speaks it. Offline
 it says so and keeps working. The same Lambda serves a web page for the judges. Report, diagram and measurements:
 [`docs/hackathon/`](docs/hackathon/report.md).

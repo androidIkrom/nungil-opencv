@@ -60,9 +60,13 @@ the floor profile and wall logic read it. Pixels ARCore left at 0 (unmeasured) s
 depth. On synthetic images: 99 % or more of a flat floor's pixels within 20 mm after 5 % spikes; a 1 500 / 2 500
 mm step edge stays sharp (no value between 1 600 and 2 400); an all-zero image stays all zero.
 
-In the cloud, OpenCV 5 (`opencv-python-headless 5.0.0.93`) crops the frame to the box the phone sends grown by
-15 %, resizes to a 1 280 px long side (`INTER_AREA`), applies CLAHE on the L channel when the mean L is under 90,
-and reads any QR code with `QRCodeDetector` so the model is told its text verbatim (`cloud/app/prep.py`, 9 tests).
+On the phone, in Find with the target in sight, "look closer" uploads the target box grown by 15 % of its own size
+instead of the whole frame (`CloudCrop`, `CloudFrame`): on a 480 x 640 frame the upload fell from 66 774 to
+16 032 bytes (`CloudFrameTest`), and the trace records which part went. In the cloud, OpenCV 5
+(`opencv-python-headless 5.0.0.93`) crops by the same rule when a client sends a whole frame and a box (the web
+page, other clients), resizes to a 1 280 px long side (`INTER_AREA`), applies CLAHE on the L channel when the mean
+L is under 90, and reads any QR code with `QRCodeDetector` so the model is told its text verbatim
+(`cloud/app/prep.py`, 9 tests).
 
 ## 5. AWS deployment
 

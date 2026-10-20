@@ -55,6 +55,15 @@ Pending: `cloud/tests/latency.py <function url> <key>` prints the table below on
 "look closer" answers "No internet. Nungil keeps working offline." within the 1.5 s connect timeout, and the
 decision trace records `offline` (`LookCloserTest`, 2026-10-18).
 
+The upload itself, measured on the emulator (`CloudFrameTest`, 2026-10-20): a 480 x 640 frame as a JPEG at
+quality 80 is 66 774 bytes; in Find, the target box (0.30, 0.20 to 0.60, 0.70 of the frame) grown by 15 % is
+16 032 bytes, 4.2 times less. The trace's `seen` field says which one went (`box l,t-r,b` when the box did).
+
+| Upload | Bytes |
+|---|---|
+| Whole frame, 480 x 640, JPEG quality 80 | 66 774 |
+| Find target box with its 15 % margin, same frame | 16 032 |
+
 | Photo | Round trip (ms) | In the Lambda (ms) | Answer |
 |---|---|---|---|
 | (to be filled by latency.py) | | | |

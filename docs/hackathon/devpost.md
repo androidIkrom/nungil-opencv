@@ -23,7 +23,8 @@ Look around (a full 360° summary), Live scan, Find ("find my bag": beeps that q
 target), saved people and objects, a Reader for signs, QR and barcodes, and Walk mode with walls, steps, stairs,
 drops and traffic lights from ARCore depth. Everything by voice, with the wake word "Eye" / "눈길아", in English
 and Korean, with no internet. For this competition: OpenCV 5 does three substantive steps on every frame, and
-"Eye, look closer" sends one frame to AWS for a fuller description when the phone is online.
+"Eye, look closer" sends one frame (in Find, the target box only) to AWS for a fuller description when the phone
+is online.
 
 ## How we built it
 

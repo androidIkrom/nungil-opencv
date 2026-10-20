@@ -152,6 +152,11 @@ class SearchCameraFragment : Fragment(), CameraScreen {
 
     override fun lastFrame(): VisionFrame? = last
 
+    /** Where the target was in the last frame handled; null when it was not seen, or since a pause. */
+    @Volatile private var targetBox: Box? = null
+
+    override fun lastTarget(): Box? = targetBox
+
     override val switchable: SwitchableCamera? get() = camera
 
     override val isWorking: Boolean get() = !paused
@@ -160,6 +165,7 @@ class SearchCameraFragment : Fragment(), CameraScreen {
     override fun pause() {
         if (_binding == null || paused) return
         paused = true
+        targetBox = null
         services.beeper.stop()
         lastPulseMs = -1L
         sayOwn(ScanPhrases.paused(lang))
@@ -225,6 +231,7 @@ class SearchCameraFragment : Fragment(), CameraScreen {
     private fun handle(frame: VisionFrame, target: Box?) {
         // A frame still in flight after the screen was left or paused must not restart the beeps or speak.
         if (leaving || paused) return
+        targetBox = target
         val x = target?.let { SearchGuide.userX(it.centerX, frame.facing) }
         val zone = x?.let { SearchGuide.zone(it) }
         val update = synchronized(tracker) { tracker.update(SystemClock.elapsedRealtime(), zone) }

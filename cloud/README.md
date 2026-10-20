@@ -4,8 +4,8 @@ The one AWS component of Nungil. The phone stays fully offline for everything el
 "Eye, look closer" (Korean "눈길아 자세히 봐") and the phone is online, the last camera frame goes to this Lambda
 function, which runs on AWS Graviton (arm64):
 
-1. `app/prep.py`, OpenCV 5: crop to the thing the user pointed at (when Find has a box), shrink to a 1280 px long
-   side, lift a dark frame with CLAHE, read any QR code.
+1. `app/prep.py`, OpenCV 5: crop to the box a client sends with a whole frame (the phone cuts the Find target
+   itself before the upload), shrink to a 1280 px long side, lift a dark frame with CLAHE, read any QR code.
 2. `app/describe.py`, Amazon Bedrock (Converse API, Nova Lite by default): two sentences for a blind user, in the
    user's language, text read verbatim, no guesses about who a person is.
 3. `app/handler.py`: `POST /look` for the phone and `GET /` for the judges' page (`web/index.html`).
