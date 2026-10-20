@@ -15,9 +15,9 @@ import java.net.UnknownHostException
 /**
  * One question to the look-closer Lambda (cloud/): POST [url]/look with the shared key. Blocking: call on a
  * worker thread. No connection at all is [Result.Offline] (Nungil says so and goes on offline); anything else
- * that is not a 200 with an answer is [Result.Failed].
+ * that is not a 200 with an answer is [Result.Failed]. Open so a test can stand in for the cloud.
  */
-class CloudLook(
+open class CloudLook(
     url: String,
     private val key: String,
     private val connectTimeoutMs: Int = CONNECT_TIMEOUT_MS,
@@ -31,7 +31,7 @@ class CloudLook(
 
     private val endpoint = url.trimEnd('/') + "/look"
 
-    fun ask(jpeg: ByteArray, question: String, lang: Lang, box: Box?): Result {
+    open fun ask(jpeg: ByteArray, question: String, lang: Lang, box: Box?): Result {
         val body = CloudJson.request(jpeg, question, lang, box).toByteArray(Charsets.UTF_8)
         val connection = try {
             URL(endpoint).openConnection() as HttpURLConnection

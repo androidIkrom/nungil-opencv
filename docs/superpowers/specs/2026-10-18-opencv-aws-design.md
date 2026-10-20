@@ -84,8 +84,9 @@ not reachable from this machine; requirements come from the Devpost summary and 
   `deploy.sh` (AWS CLI, idempotent, arm64, Python 3.12, 1024 MB, 30 s), `tests/` (pytest, fake Bedrock client).
   A shared secret header `x-nungil-key` guards `/look`; the key is given to judges in the Devpost testing notes.
 - **App to cloud**: `BuildConfig.NUNGIL_CLOUD_URL` and `NUNGIL_CLOUD_KEY` from the git-ignored
-  `local.properties`, like `ORS_API_KEY`. Frame sent as JPEG, long side 1280, quality 80, with the Find target
-  box when there is one. Timeout 15 s.
+  `local.properties`, like `ORS_API_KEY`. Frame sent as JPEG, long side 1280, quality 80; in Find with the target
+  in sight, the phone cuts the frame to the target box grown by 15 % before sending (2026-10-20: a quarter of the
+  bytes; the Lambda's own crop stays for clients that send a whole frame and a box). Timeout 15 s.
 - **Voice**: `VoiceCommand.LookCloser` -> `CameraAction.LookCloser` -> `FrameAnswers.closer(frame, lang)`, the
   same route as "what is this".
 - **Trace**: `core/trace/TraceEvent` + `TraceLine.json`; app `DecisionTrace` appends to `files/trace/*.jsonl`;
